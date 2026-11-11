@@ -2611,7 +2611,8 @@ TEST(PoopleTest, SolverFindsValidPathAndOrder) {
   Poople::Config config;
   config.startWord = "tares";
   config.endWord = "tears";
-  config.maxDepth = 5;
+  config.minWords = 2;
+  config.maxWords = 5;
   config.excludeUncommonWords = false;
 
   auto result = Poople::solve(config);

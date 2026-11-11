@@ -149,9 +149,9 @@ SolverResult solve(const Config &config, const std::atomic<bool> &cancelToken) {
     }
   }
 
-  // Search for paths up to maxDepth words (i.e. length <= maxDepth)
-  // Each path starts with 1 word: start. Max depth means path.size() <= config.maxDepth.
-  const uint32_t maxDepth = std::max(uint32_t(2), config.maxDepth);
+  // Search for paths between minWords and maxWords
+  const uint32_t maxWords = std::max(uint32_t(2), config.maxWords);
+  const uint32_t minWords = std::max(uint32_t(2), config.minWords);
 
   // First, compute shortest distances from start using BFS to prune paths that cannot reach end
   // Also compute shortest distances from end
@@ -172,16 +172,17 @@ SolverResult solve(const Config &config, const std::atomic<bool> &cancelToken) {
     }
   }
 
-  // If end is unreachable at all
-  if (distFromEnd[startIdx] == -1 || static_cast<uint32_t>(distFromEnd[startIdx] + 1) > maxDepth) {
+  // If end is unreachable at all or unreachable within maxWords
+  if (distFromEnd[startIdx] == -1 || static_cast<uint32_t>(distFromEnd[startIdx] + 1) > maxWords) {
     return result;
   }
 
   // Use Iterative Deepening DFS (IDDFS) bounded by distance-from-target heuristics.
-  // This guarantees shortest solutions are found first (length L = minLen, then L = minLen + 1, ...),
-  // while consuming O(maxDepth) = O(1) memory instead of O(branching^depth) gigabytes in a queue.
-  const uint32_t minLen = static_cast<uint32_t>(distFromEnd[startIdx] + 1);
-  const uint32_t maxSearchLen = maxDepth;
+  // This guarantees shortest solutions are found first (length L = startLen, then L = startLen + 1, ...),
+  // while consuming O(maxWords) = O(1) memory instead of O(branching^depth) gigabytes in a queue.
+  const uint32_t shortestPossible = static_cast<uint32_t>(distFromEnd[startIdx] + 1);
+  const uint32_t startLen = std::max(shortestPossible, minWords);
+  const uint32_t maxSearchLen = maxWords;
   const uint32_t maxSolutions = (config.maxSolutions > 0) ? config.maxSolutions : 100000;
 
   std::vector<int> currentPath;
@@ -244,7 +245,7 @@ SolverResult solve(const Config &config, const std::atomic<bool> &cancelToken) {
     }
   };
 
-  for (uint32_t len = minLen; len <= maxSearchLen; ++len) {
+  for (uint32_t len = startLen; len <= maxSearchLen; ++len) {
     searchTargetLength(searchTargetLength, startIdx, len);
     if (result.wasCancelled || result.solutions.size() >= maxSolutions) {
       break;

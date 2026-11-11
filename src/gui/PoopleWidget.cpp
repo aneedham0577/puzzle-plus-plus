@@ -49,7 +49,8 @@ PoopleWidget::~PoopleWidget() {
 void PoopleWidget::initGame() {
   config.startWord = "";
   config.endWord = "poop";
-  config.maxDepth = 10;
+  config.minWords = 2;
+  config.maxWords = 10;
   config.excludeUncommonWords = true;
   config.maxSolutions = 1000;
 
@@ -79,8 +80,9 @@ void PoopleWidget::onStartTextChanged(const QString &text) {
 }
 
 void PoopleWidget::updateConfigInfo() {
-  QString info = QString("Max Depth: %1 | Dictionary: %2 | Max Solutions: %3")
-                     .arg(config.maxDepth)
+  QString info = QString("Words: %1-%2 | Dictionary: %3 | Max Solutions: %4")
+                     .arg(config.minWords)
+                     .arg(config.maxWords)
                      .arg(config.excludeUncommonWords ? "Common words" : "All words")
                      .arg(config.maxSolutions);
   ui->configInfoLabel->setText(info);
@@ -190,10 +192,15 @@ bool PoopleWidget::showConfigDialog() {
 
   QFormLayout *layout = new QFormLayout(&dialog);
 
-  QSpinBox *depthSpin = new QSpinBox(&dialog);
-  depthSpin->setRange(2, 20);
-  depthSpin->setValue(config.maxDepth);
-  layout->addRow("Max Ladder Depth:", depthSpin);
+  QSpinBox *minWordsSpin = new QSpinBox(&dialog);
+  minWordsSpin->setRange(2, 20);
+  minWordsSpin->setValue(config.minWords);
+  layout->addRow("Min Ladder Words:", minWordsSpin);
+
+  QSpinBox *maxWordsSpin = new QSpinBox(&dialog);
+  maxWordsSpin->setRange(2, 20);
+  maxWordsSpin->setValue(config.maxWords);
+  layout->addRow("Max Ladder Words:", maxWordsSpin);
 
   QCheckBox *excludeBox = new QCheckBox("Exclude uncommon words", &dialog);
   excludeBox->setChecked(config.excludeUncommonWords);
@@ -212,7 +219,11 @@ bool PoopleWidget::showConfigDialog() {
   connect(buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
 
   if (dialog.exec() == QDialog::Accepted) {
-    config.maxDepth = static_cast<uint32_t>(depthSpin->value());
+    config.minWords = static_cast<uint32_t>(minWordsSpin->value());
+    config.maxWords = static_cast<uint32_t>(maxWordsSpin->value());
+    if (config.minWords > config.maxWords) {
+      std::swap(config.minWords, config.maxWords);
+    }
     config.excludeUncommonWords = excludeBox->isChecked();
     config.maxSolutions = static_cast<uint32_t>(maxSolSpin->value());
     return true;

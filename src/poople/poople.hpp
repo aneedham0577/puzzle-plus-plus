@@ -13,7 +13,8 @@ namespace Poople {
 struct Config {
   std::string startWord;
   std::string endWord;
-  uint32_t maxDepth = 10;
+  uint32_t minWords = 2;       // Minimum words in the ladder (including start and end)
+  uint32_t maxWords = 10;      // Maximum words in the ladder (formerly maxDepth)
   bool excludeUncommonWords = true;
   uint32_t maxSolutions = 1000;
 };

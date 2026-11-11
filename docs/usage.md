@@ -155,11 +155,12 @@ For `<bool>` options: `1` / `y` / `yes` / `t` / `true` (any case) or `0` / `n` /
 * `-s`, `--start <word>` — starting word (required)
 * `-e`, `--end <word>` — target ending word (default: `"poop"` if start word length is 4)
 * `--preset <1|2|3|0>` — preset configuration:
-  * `1`: Default (all solutions up to depth 10, common words)
-  * `2`: Fast (first 100 solutions up to depth 10)
-  * `3`: Exhaustive (all words including uncommon up to depth 10)
+  * `1`: Default (2 to 10 words, common words)
+  * `2`: Fast (first 100 solutions)
+  * `3`: Exhaustive (all words including uncommon up to 10 words)
   * `0`: Custom
-* `--max-depth <n>` — maximum ladder depth in words (default `10`)
+* `--min-words <n>` — minimum ladder words (default `2`)
+* `--max-words <n>` — maximum ladder words (default `10`, alias: `--max-depth`)
 * `--exclude-uncommon-words <bool>` — exclude uncommon words (default `true`)
 * `--max-solutions <n>` — limit total solutions saved (default `1000`)
 * `-o`, `--output <file>` — default `results/temp.txt`

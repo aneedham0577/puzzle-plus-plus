@@ -49,20 +49,25 @@ Poople::Config PoopleGame::getConfigFromUser() {
   int preset = Utils::Input::promptInt("Enter preset number", 1, 0, 3);
 
   if (preset == 1) {
-    config.maxDepth = 10;
+    config.minWords = 2;
+    config.maxWords = 10;
     config.excludeUncommonWords = true;
     config.maxSolutions = 1000;
   } else if (preset == 2) {
-    config.maxDepth = 10;
+    config.minWords = 2;
+    config.maxWords = 10;
     config.excludeUncommonWords = true;
     config.maxSolutions = 100;
   } else if (preset == 3) {
-    config.maxDepth = 10;
+    config.minWords = 2;
+    config.maxWords = 10;
     config.excludeUncommonWords = false;
     config.maxSolutions = 1000;
   } else {
-    config.maxDepth = static_cast<uint32_t>(
-        Utils::Input::promptInt("Enter maximum ladder depth (words)", 10, 2, 20));
+    config.minWords = static_cast<uint32_t>(
+        Utils::Input::promptInt("Enter minimum ladder words", 2, 2, 20));
+    config.maxWords = static_cast<uint32_t>(
+        Utils::Input::promptInt("Enter maximum ladder words", 10, static_cast<int>(config.minWords), 20));
     config.excludeUncommonWords = Utils::Input::promptBool(
         "Exclude uncommon words? (y/n)", true);
     config.maxSolutions = static_cast<uint32_t>(
@@ -94,22 +99,28 @@ PoopleGame::getConfigFromArgs(const std::map<std::string, std::string> &args) {
   int preset = Utils::Input::getArgValue(args, "preset", 1);
 
   if (preset == 1) {
-    config.maxDepth = 10;
+    config.minWords = 2;
+    config.maxWords = 10;
     config.excludeUncommonWords = true;
     config.maxSolutions = 1000;
   } else if (preset == 2) {
-    config.maxDepth = 10;
+    config.minWords = 2;
+    config.maxWords = 10;
     config.excludeUncommonWords = true;
     config.maxSolutions = 100;
   } else if (preset == 3) {
-    config.maxDepth = 10;
+    config.minWords = 2;
+    config.maxWords = 10;
     config.excludeUncommonWords = false;
     config.maxSolutions = 1000;
   }
 
   // Override preset with specific args if passed
-  config.maxDepth = static_cast<uint32_t>(
-      Utils::Input::getArgValue(args, "max-depth", static_cast<int>(config.maxDepth)));
+  config.minWords = static_cast<uint32_t>(
+      Utils::Input::getArgValue(args, "min-words", static_cast<int>(config.minWords)));
+  config.maxWords = static_cast<uint32_t>(
+      Utils::Input::getArgValue(args, "max-words",
+      Utils::Input::getArgValue(args, "max-depth", static_cast<int>(config.maxWords)))));
   config.excludeUncommonWords = Utils::Input::getArgValue(
       args, "exclude-uncommon-words", config.excludeUncommonWords);
   config.maxSolutions = static_cast<uint32_t>(

@@ -200,7 +200,8 @@ static void BM_Poople_Runtime(benchmark::State &state) {
   Poople::Config config;
   config.startWord = "cold";
   config.endWord = "warm";
-  config.maxDepth = 10;
+  config.minWords = 2;
+  config.maxWords = 10;
   config.excludeUncommonWords = true;
   config.maxSolutions = 1000;
 
