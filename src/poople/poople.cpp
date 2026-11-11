@@ -177,82 +177,77 @@ SolverResult solve(const Config &config, const std::atomic<bool> &cancelToken) {
     return result;
   }
 
-  // Queue for BFS path search to find all solutions up to maxDepth
-  // A path is represented by indices
-  struct PathNode {
-    std::vector<int> path;
-    std::vector<bool> inPath;
-  };
+  // Use Iterative Deepening DFS (IDDFS) bounded by distance-from-target heuristics.
+  // This guarantees shortest solutions are found first (length L = minLen, then L = minLen + 1, ...),
+  // while consuming O(maxDepth) = O(1) memory instead of O(branching^depth) gigabytes in a queue.
+  const uint32_t minLen = static_cast<uint32_t>(distFromEnd[startIdx] + 1);
+  const uint32_t maxSearchLen = maxDepth;
+  const uint32_t maxSolutions = (config.maxSolutions > 0) ? config.maxSolutions : 100000;
 
-  std::queue<PathNode> q;
-  PathNode initial;
-  initial.path.push_back(startIdx);
-  initial.inPath.assign(numWords, false);
-  initial.inPath[startIdx] = true;
-  q.push(std::move(initial));
+  std::vector<int> currentPath;
+  currentPath.reserve(maxSearchLen);
+  currentPath.push_back(startIdx);
 
-  while (!q.empty()) {
+  std::vector<bool> inCurrentPath(numWords, false);
+  inCurrentPath[startIdx] = true;
+
+  auto searchTargetLength = [&](auto &self, int u, uint32_t targetLen) -> void {
     if (cancelToken.load(std::memory_order_relaxed)) {
       result.wasCancelled = true;
-      break;
+      return;
     }
 
-    PathNode curr = std::move(q.front());
-    q.pop();
+    if (result.solutions.size() >= maxSolutions) {
+      return;
+    }
 
-    int lastNode = curr.path.back();
-
-    // If we reached target
-    if (lastNode == endIdx) {
-      Solution sol;
-      sol.words.reserve(curr.path.size());
-      double minSc = 1.0;
-      std::string text;
-      for (size_t i = 0; i < curr.path.size(); ++i) {
-        int idx = curr.path[i];
-        sol.words.push_back(candidates[idx].word);
-        minSc = std::min(minSc, candidates[idx].score);
-        if (i > 0) text += " ";
-        text += candidates[idx].word;
+    if (currentPath.size() == targetLen) {
+      if (u == endIdx) {
+        Solution sol;
+        sol.words.reserve(currentPath.size());
+        double minSc = 1.0;
+        std::string text;
+        for (size_t i = 0; i < currentPath.size(); ++i) {
+          int idx = currentPath[i];
+          sol.words.push_back(candidates[idx].word);
+          minSc = std::min(minSc, candidates[idx].score);
+          if (i > 0) text += " ";
+          text += candidates[idx].word;
+        }
+        sol.minScore = minSc;
+        sol.text = std::move(text);
+        result.solutions.push_back(std::move(sol));
+        result.totalSolutionsFound++;
       }
-      sol.minScore = minSc;
-      sol.text = std::move(text);
-      result.solutions.push_back(std::move(sol));
-      result.totalSolutionsFound++;
-
-      if (config.maxSolutions > 0 && result.solutions.size() >= config.maxSolutions) {
-        break;
-      }
-      // Once we reach end, don't continue extending this path
-      continue;
+      return;
     }
 
-    // Check if extending exceeds max depth
-    if (curr.path.size() >= maxDepth) {
-      continue;
-    }
-
-    // Check if remaining depth is sufficient to reach endIdx
-    int remainingSteps = static_cast<int>(maxDepth - curr.path.size());
-    if (distFromEnd[lastNode] > remainingSteps) {
-      continue;
-    }
-
-    for (int next : adj[lastNode]) {
-      if (curr.inPath[next]) {
+    int remainingSteps = static_cast<int>(targetLen - currentPath.size());
+    for (int next : adj[u]) {
+      if (inCurrentPath[next]) {
         continue;
       }
-      // Can `next` reach `end` in remaining - 1 steps?
+      // Heuristic prune: can `next` reach `end` in remainingSteps - 1?
       if (distFromEnd[next] > remainingSteps - 1) {
         continue;
       }
 
-      PathNode nextNode;
-      nextNode.path = curr.path;
-      nextNode.path.push_back(next);
-      nextNode.inPath = curr.inPath;
-      nextNode.inPath[next] = true;
-      q.push(std::move(nextNode));
+      inCurrentPath[next] = true;
+      currentPath.push_back(next);
+      self(self, next, targetLen);
+      currentPath.pop_back();
+      inCurrentPath[next] = false;
+
+      if (result.wasCancelled || result.solutions.size() >= maxSolutions) {
+        return;
+      }
+    }
+  };
+
+  for (uint32_t len = minLen; len <= maxSearchLen; ++len) {
+    searchTargetLength(searchTargetLength, startIdx, len);
+    if (result.wasCancelled || result.solutions.size() >= maxSolutions) {
+      break;
     }
   }
 
