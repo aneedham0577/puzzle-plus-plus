@@ -82,12 +82,15 @@ Letter Boxed:
     --min-unique-letters <n>   Minimum unique letters per word (can override preset)
     --prune-paths              Enable pruning redundant paths (can override preset)
     --prune-classes            Enable pruning dominated classes (can override preset)
+    --exclude-uncommon-words   Exclude uncommon words (1/true/yes or 0/false/no, default: 0)
+    --exclude-words <words>    Comma-separated list of words to exclude
     -o, --output <file>        Output file (default: results/temp.txt)
 
 Spelling Bee:
   %s spellingbee --letters <letters> [OPTIONS]
     --letters <letters>         Letters for the puzzle, minimum 3, duplicates allowed (required)
     --exclude-uncommon-words    Exclude uncommon words (1/true/yes or 0/false/no, default: 0)
+    --exclude-words <words>     Comma-separated list of words to exclude
     --must-include-first-letter Must include first letter (1/true/yes or 0/false/no, default: 1)
     --reuse-letters            Allow reuse of letters (1/true/yes or 0/false/no, default: 1)
     -o, --output <file>        Output file (default: results/temp.txt)
@@ -100,6 +103,7 @@ Wordle:
     --max-depth <0-2>          Search depth for entropy (default: 0)
     --auto-depth               Dynamically calculate optimal depth (ignores max-depth)
     --exclude-uncommon-words   Exclude uncommon words (1/true/yes or 0/false/no, default: 0)
+    --exclude-words <words>    Comma-separated list of words to exclude
     -o, --output <file>        Output file with possible words and all guesses
                                  (default: results/guesses.txt)
 
@@ -137,6 +141,7 @@ Hangman:
     --max-depth <0-2>          Search depth for entropy (default: 0, range: 0-2)
     --auto-depth               Dynamically calculate optimal depth (ignores max-depth)
     --exclude-uncommon-words   Exclude uncommon words (1/true/yes or 0/false/no, default: 0)
+    --exclude-words <words>    Comma-separated list of words to exclude
     -o, --output <file>        Output file with letter rankings and possible words
                                  (default: results/hangman.txt)
 
@@ -152,6 +157,7 @@ Poople:
     --min-words <n>            Minimum ladder words (default: 2)
     --max-words <n>            Maximum ladder words (default: 10, alias: --max-depth)
     --exclude-uncommon-words   Exclude uncommon words (default: 1)
+    --exclude-words <words>    Comma-separated list of words to exclude
     --max-solutions <n>        Maximum solutions returned (default: 1000)
     -o, --output <file>        Output file (default: results/temp.txt)
 

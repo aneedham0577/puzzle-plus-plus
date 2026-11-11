@@ -123,6 +123,10 @@ PoopleGame::getConfigFromArgs(const std::map<std::string, std::string> &args) {
       Utils::Input::getArgValue(args, "max-depth", static_cast<int>(config.maxWords))));
   config.excludeUncommonWords = Utils::Input::getArgValue(
       args, "exclude-uncommon-words", config.excludeUncommonWords);
+  std::string excludeWordsArg = Utils::Input::getArgValue(args, "exclude-words", std::string(""));
+  if (!excludeWordsArg.empty()) {
+    config.excludedWords = Utils::parseWordSet(excludeWordsArg);
+  }
   config.maxSolutions = static_cast<uint32_t>(
       Utils::Input::getArgValue(args, "max-solutions", static_cast<int>(config.maxSolutions)));
 

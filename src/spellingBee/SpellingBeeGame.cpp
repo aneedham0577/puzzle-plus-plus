@@ -131,6 +131,11 @@ SpellingBee::Config SpellingBeeGame::getConfigFromArgs(
   config.excludeUncommonWords =
       Utils::Input::getArgValue(args, "exclude-uncommon-words", false);
 
+  std::string excludeWordsArg = Utils::Input::getArgValue(args, "exclude-words", std::string(""));
+  if (!excludeWordsArg.empty()) {
+    config.excludedWords = Utils::parseWordSet(excludeWordsArg);
+  }
+
   config.mustIncludeFirstLetter =
       Utils::Input::getArgValue(args, "must-include-first-letter", true);
 

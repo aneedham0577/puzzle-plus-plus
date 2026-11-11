@@ -518,9 +518,10 @@ Result runHangmanSolver(const Config &config, std::atomic<bool> *cancel) {
   for (size_t slotIdx = 0; slotIdx < numSlots; ++slotIdx) {
     const auto &pattern = config.wordPatterns[slotIdx];
     for (const auto &word : allWords) {
-      bool exclude = config.excludeUncommonWords && (!word.is_scrabble) &&
-                     word.wordString.length() >
-                         1; // Explicitly include 1 letter words for hangman
+      bool exclude = (config.excludeUncommonWords && (!word.is_scrabble) &&
+                      word.wordString.length() >
+                          1) || // Explicitly include 1 letter words for hangman
+                     (config.excludedWords.count(word.wordString) > 0);
       if (exclude)
         continue;
 

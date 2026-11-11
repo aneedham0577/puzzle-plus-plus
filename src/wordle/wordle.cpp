@@ -230,7 +230,8 @@ Result runWordleSolver(const Config &config, std::atomic<bool> *cancel) {
   // Filter words to only words of the specified length
   std::vector<Utils::Word> possibleWords;
   for (const auto &word : allWords) {
-    bool exclude = config.excludeUncommonWords && (!word.is_scrabble);
+    bool exclude = (config.excludeUncommonWords && (!word.is_scrabble)) ||
+                   (config.excludedWords.count(word.wordString) > 0);
     if (word.wordString.length() == config.wordLength && !exclude) {
       possibleWords.push_back(word);
     }

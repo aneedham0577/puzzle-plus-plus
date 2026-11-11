@@ -90,6 +90,7 @@ For `<bool>` options: `1` / `y` / `yes` / `t` / `true` (any case) or `0` / `n` /
 * `--max-depth <0-2>` — entropy depth (default `0`)
 * `--auto-depth` — overrides `--max-depth`
 * `--exclude-uncommon-words <bool>` — default `false`
+* `--exclude-words <words>` — comma-separated words to exclude
 * `-o`, `--output <file>` — default `results/guesses.txt`
 
 ### Spelling Bee
@@ -100,6 +101,7 @@ For `<bool>` options: `1` / `y` / `yes` / `t` / `true` (any case) or `0` / `n` /
 
 * `--letters <string>` — **required**, ≥3 letters; **first is center**
 * `--exclude-uncommon-words <bool>` — default `false`
+* `--exclude-words <words>` — comma-separated words to exclude
 * `--must-include-first-letter <bool>` — default `true`
 * `--reuse-letters <bool>` — default `true`
 * `-o`, `--output <file>` — default `results/temp.txt`
@@ -117,6 +119,8 @@ For `<bool>` options: `1` / `y` / `yes` / `t` / `true` (any case) or `0` / `n` /
 * `--min-unique-letters <n>`
 * `--prune-paths <bool>` — recommended
 * `--prune-classes <bool>` — recommended
+* `--exclude-uncommon-words <bool>` — default `false`
+* `--exclude-words <words>` — comma-separated words to exclude
 * `-o`, `--output <file>` — default `results/temp.txt`
 
 ### Mastermind
@@ -144,6 +148,7 @@ For `<bool>` options: `1` / `y` / `yes` / `t` / `true` (any case) or `0` / `n` /
 * `--max-depth <0-2>` — default `0`
 * `--auto-depth`
 * `--exclude-uncommon-words <bool>` — default `false`
+* `--exclude-words <words>` — comma-separated words to exclude
 * `-o`, `--output <file>` — default `results/hangman.txt`
 
 ### Poople (Word Ladder)
@@ -162,6 +167,7 @@ For `<bool>` options: `1` / `y` / `yes` / `t` / `true` (any case) or `0` / `n` /
 * `--min-words <n>` — minimum ladder words (default `2`)
 * `--max-words <n>` — maximum ladder words (default `10`, alias: `--max-depth`)
 * `--exclude-uncommon-words <bool>` — exclude uncommon words (default `true`)
+* `--exclude-words <words>` — comma-separated words to exclude
 * `--max-solutions <n>` — limit total solutions saved (default `1000`)
 * `-o`, `--output <file>` — default `results/temp.txt`
 

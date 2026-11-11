@@ -3,6 +3,7 @@
 #include <bitset>
 #include <cmath>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 #include "utils/EntSolver.hpp"
@@ -18,6 +19,7 @@ struct Config {
   uint8_t maxDepth = 1; // How many moves ahead to calculate ENT
   bool autoDepth = false; // Dynamically choose optimal depth
   bool excludeUncommonWords = false;
+  std::unordered_set<std::string> excludedWords = {};
   uint8_t wordLength = 5; // Length of words to use (default 5)
   uint32_t maxGuesses = 6; // Maximum allowed guesses
   std::vector<Feedback> feedbackHistory = {};

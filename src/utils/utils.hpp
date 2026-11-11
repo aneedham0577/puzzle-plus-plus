@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 namespace Utils {
@@ -47,6 +48,9 @@ std::string trim(const std::string &str);
 
 // Trims whitespace and converts a string to lowercase
 std::string trimToLower(const std::string &str);
+
+// Parses comma- or whitespace-separated list of words into a lowercase set
+std::unordered_set<std::string> parseWordSet(const std::string &input);
 
 // Loads words from a CSV file. If csvFile is empty, uses word_scores.csv.
 // If useBinaryCache is true, tries to load from/save to .bin file.

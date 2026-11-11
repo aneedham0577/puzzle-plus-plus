@@ -77,6 +77,10 @@ HangmanGame::getConfigFromArgs(const std::map<std::string, std::string> &args) {
   config.autoDepth = Utils::Input::getArgValue(args, "auto-depth", false);
   config.excludeUncommonWords =
       Utils::Input::getArgValue(args, "exclude-uncommon-words", false);
+  std::string excludeWordsArg = Utils::Input::getArgValue(args, "exclude-words", std::string(""));
+  if (!excludeWordsArg.empty()) {
+    config.excludedWords = Utils::parseWordSet(excludeWordsArg);
+  }
   config.maxGuesses = Utils::Input::getArgValue(args, "max-guesses", 6);
   return config;
 }

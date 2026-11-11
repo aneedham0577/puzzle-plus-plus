@@ -120,6 +120,8 @@ void filterWords(std::vector<WordPath> &allValidWordPaths,
       return;
     if (config.excludeUncommonWords && !wordObj.is_scrabble)
       continue;
+    if (config.excludedWords.count(wordObj.wordString))
+      continue;
     const std::string &word = wordObj.wordString;
     std::bitset<12> uniqueChars;
     bool containsInvalidCharacter = false;

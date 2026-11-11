@@ -2,6 +2,7 @@
 #include <array>
 #include <bitset>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 #include "utils/inputUtils.hpp"
@@ -22,6 +23,7 @@ struct Config {
   bool pruneRedundantPaths = true;
   bool pruneDominatedClasses = true;
   bool excludeUncommonWords = false;
+  std::unordered_set<std::string> excludedWords = {};
 };
 
 struct WordPath {

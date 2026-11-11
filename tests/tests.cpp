@@ -2641,6 +2641,45 @@ TEST(PoopleTest, SolverFindsValidPathAndOrder) {
   }
 }
 
+TEST(PoopleTest, SolverRespectsExcludedWords) {
+  Poople::Config config;
+  config.startWord = "cold";
+  config.endWord = "warm";
+  config.minWords = 2;
+  config.maxWords = 6;
+  config.excludeUncommonWords = false;
+
+  auto baseResult = Poople::solve(config);
+  if (!baseResult.solutions.empty()) {
+    // Pick an intermediate word from the first solution
+    const auto &firstSol = baseResult.solutions.front();
+    if (firstSol.words.size() > 2) {
+      std::string intermediate = firstSol.words[1];
+      config.excludedWords.insert(intermediate);
+      auto filteredResult = Poople::solve(config);
+      for (const auto &sol : filteredResult.solutions) {
+        for (const auto &w : sol.words) {
+          EXPECT_NE(w, intermediate);
+        }
+      }
+    }
+  }
+}
+
+TEST(UtilsTest, ParseWordSet) {
+  auto set1 = Utils::parseWordSet("apple, banana, cherry");
+  EXPECT_EQ(set1.size(), 3u);
+  EXPECT_TRUE(set1.count("apple"));
+  EXPECT_TRUE(set1.count("banana"));
+  EXPECT_TRUE(set1.count("cherry"));
+
+  auto set2 = Utils::parseWordSet(" FOO;  BAR\nbaz  ");
+  EXPECT_EQ(set2.size(), 3u);
+  EXPECT_TRUE(set2.count("foo"));
+  EXPECT_TRUE(set2.count("bar"));
+  EXPECT_TRUE(set2.count("baz"));
+}
+
 TEST(EntSolverTest, EstimateENTMonotonicInN) {
   // Depth-0 Wordle ENT should grow as the candidate pool grows.
   Wordle::Config config;

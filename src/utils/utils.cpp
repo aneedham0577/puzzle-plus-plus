@@ -65,6 +65,27 @@ std::string trimToLower(const std::string &str) {
   return trimmed;
 }
 
+std::unordered_set<std::string> parseWordSet(const std::string &input) {
+  std::unordered_set<std::string> result;
+  std::string current;
+  for (char ch : input) {
+    if (ch == ',' || ch == ';' || std::isspace(static_cast<unsigned char>(ch))) {
+      std::string word = trimToLower(current);
+      if (!word.empty()) {
+        result.insert(word);
+      }
+      current.clear();
+    } else {
+      current += ch;
+    }
+  }
+  std::string last = trimToLower(current);
+  if (!last.empty()) {
+    result.insert(last);
+  }
+  return result;
+}
+
 // Resource path management - uses compile-time definitions
 std::string getResourcePath() {
 #ifndef INSTALLED_RESOURCE_DIR

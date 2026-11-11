@@ -209,6 +209,10 @@ LetterBoxed::Config LetterBoxedGame::getConfigFromArgs(
     config.excludeUncommonWords = Utils::Input::getArgValue(
         args, "exclude-uncommon-words", config.excludeUncommonWords);
   }
+  std::string excludeWordsArg = Utils::Input::getArgValue(args, "exclude-words", std::string(""));
+  if (!excludeWordsArg.empty()) {
+    config.excludedWords = Utils::parseWordSet(excludeWordsArg);
+  }
 
   return config;
 }

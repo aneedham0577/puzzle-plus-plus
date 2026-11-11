@@ -89,6 +89,9 @@ SolverResult solve(const Config &config, const std::atomic<bool> &cancelToken) {
     if (config.excludeUncommonWords && !w.is_scrabble) {
       continue;
     }
+    if (config.excludedWords.count(w.wordString)) {
+      continue;
+    }
 
     int idx = static_cast<int>(candidates.size());
     wordToIndex[w.wordString] = idx;
