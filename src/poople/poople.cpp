@@ -70,9 +70,6 @@ SolverResult solve(const Config &config, const std::atomic<bool> &cancelToken) {
   std::vector<CandidateWord> candidates;
   std::unordered_map<std::string, int> wordToIndex;
 
-  // Track if start and end words exist in dictionary
-  bool startFound = false;
-  bool endFound = false;
   double startScore = 0.0;
   double endScore = 0.0;
 
@@ -82,11 +79,9 @@ SolverResult solve(const Config &config, const std::atomic<bool> &cancelToken) {
     }
 
     if (w.wordString == start) {
-      startFound = true;
       startScore = w.score;
     }
     if (w.wordString == end) {
-      endFound = true;
       endScore = w.score;
     }
 
