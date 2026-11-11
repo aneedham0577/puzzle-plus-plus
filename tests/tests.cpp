@@ -2633,7 +2633,8 @@ TEST(PoopleTest, SolverFindsValidPathAndOrder) {
 
   for (size_t i = 0; i + 1 < result.solutions.size(); ++i) {
     if (result.solutions[i].words.size() == result.solutions[i + 1].words.size()) {
-      EXPECT_GE(result.solutions[i].minScore, result.solutions[i + 1].minScore);
+      // Lexicographical comparison of sortedWordScores in descending order
+      EXPECT_GE(result.solutions[i].sortedWordScores, result.solutions[i + 1].sortedWordScores);
     } else {
       EXPECT_LT(result.solutions[i].words.size(), result.solutions[i + 1].words.size());
     }

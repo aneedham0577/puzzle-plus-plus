@@ -54,6 +54,7 @@ SolverResult solve(const Config &config, const std::atomic<bool> &cancelToken) {
         break;
       }
     }
+    s.sortedWordScores = {s.minScore};
     s.text = start;
     result.solutions.push_back(s);
     result.totalSolutionsFound = 1;
@@ -201,16 +202,17 @@ SolverResult solve(const Config &config, const std::atomic<bool> &cancelToken) {
       if (u == endIdx) {
         Solution sol;
         sol.words.reserve(currentPath.size());
-        double minSc = 1.0;
+        sol.sortedWordScores.reserve(currentPath.size());
         std::string text;
         for (size_t i = 0; i < currentPath.size(); ++i) {
           int idx = currentPath[i];
           sol.words.push_back(candidates[idx].word);
-          minSc = std::min(minSc, candidates[idx].score);
+          sol.sortedWordScores.push_back(candidates[idx].score);
           if (i > 0) text += " ";
           text += candidates[idx].word;
         }
-        sol.minScore = minSc;
+        std::sort(sol.sortedWordScores.begin(), sol.sortedWordScores.end());
+        sol.minScore = sol.sortedWordScores.empty() ? 0.0 : sol.sortedWordScores.front();
         sol.text = std::move(text);
         result.solutions.push_back(std::move(sol));
         result.totalSolutionsFound++;

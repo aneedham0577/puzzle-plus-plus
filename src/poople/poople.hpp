@@ -22,6 +22,7 @@ struct Config {
 // Represents a valid word ladder solution path
 struct Solution {
   std::vector<std::string> words;
+  std::vector<double> sortedWordScores; // Word scores sorted in ascending order (lowest first)
   double minScore = 0.0;
   std::string text; // Space-separated word sequence
 
@@ -29,8 +30,12 @@ struct Solution {
     if (words.size() != other.words.size()) {
       return words.size() < other.words.size(); // Ascending length
     }
-    if (minScore != other.minScore) {
-      return minScore > other.minScore; // Descending min word score
+    // Compare lowest word score, then second lowest, then third lowest, etc. in descending order
+    size_t n = std::min(sortedWordScores.size(), other.sortedWordScores.size());
+    for (size_t i = 0; i < n; ++i) {
+      if (sortedWordScores[i] != other.sortedWordScores[i]) {
+        return sortedWordScores[i] > other.sortedWordScores[i]; // Higher score first
+      }
     }
     return words < other.words;
   }
