@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PoopleWidget</class>
+ <widget class="QWidget" name="PoopleWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>700</width>
+    <height>550</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Poople</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="titleLabel">
+     <property name="font">
+      <font>
+       <pointsize>20</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Poople (Word Ladder)</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="configInfoLabel">
+     <property name="text">
+      <string>Transform start word to target word one letter at a time</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="inputLayout">
+     <item>
+      <widget class="QLabel" name="startLabel">
+       <property name="text">
+        <string>Start Word:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="startLineEdit">
+       <property name="placeholderText">
+        <string>e.g. COLD</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="endLabel">
+       <property name="text">
+        <string>Target Word:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="endLineEdit">
+       <property name="text">
+        <string>POOP</string>
+       </property>
+       <property name="placeholderText">
+        <string>e.g. POOP</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="solveButton">
+       <property name="text">
+        <string>Solve</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="newGameButton">
+       <property name="text">
+        <string>New Game</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="settingsButton">
+       <property name="text">
+        <string>Settings</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QTableWidget" name="resultsTable">
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
+     <property name="selectionMode">
+      <set>QAbstractItemView::SingleSelection</set>
+     </property>
+     <property name="selectionBehavior">
+      <set>QAbstractItemView::SelectRows</set>
+     </property>
+     <attribute name="horizontalHeaderStretchLastSection">
+      <bool>true</bool>
+     </attribute>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

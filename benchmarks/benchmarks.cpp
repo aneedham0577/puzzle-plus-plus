@@ -8,6 +8,7 @@
 #include "letterBoxed/letterBoxed.hpp"
 #include "mastermind/MastermindGame.hpp"
 #include "mastermind/mastermind.hpp"
+#include "poople/poople.hpp"
 #include "spellingBee/SpellingBeeGame.hpp"
 #include "spellingBee/spellingBee.hpp"
 #include "utils/inputUtils.hpp"
@@ -194,6 +195,23 @@ static void BM_Hangman_MultiWord_Runtime(benchmark::State &state) {
   }
 }
 BENCHMARK(BM_Hangman_MultiWord_Runtime);
+
+static void BM_Poople_Runtime(benchmark::State &state) {
+  Poople::Config config;
+  config.startWord = "cold";
+  config.endWord = "warm";
+  config.maxDepth = 10;
+  config.excludeUncommonWords = true;
+  config.maxSolutions = 1000;
+
+  Utils::loadWords();
+
+  for (auto _ : state) {
+    Poople::SolverResult result = Poople::solve(config);
+    benchmark::DoNotOptimize(result);
+  }
+}
+BENCHMARK(BM_Poople_Runtime);
 
 // Run the benchmarks
 BENCHMARK_MAIN();

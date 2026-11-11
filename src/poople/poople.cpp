@@ -1,0 +1,268 @@
+#include "poople.hpp"
+
+#include <algorithm>
+#include <deque>
+#include <queue>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+namespace Poople {
+
+namespace {
+
+// Helper to generate generic bucket patterns for a word (e.g. "poop" -> ["*oop", "p*op", "po*p", "poo*"])
+std::vector<std::string> getPatterns(const std::string &word) {
+  std::vector<std::string> patterns;
+  patterns.reserve(word.size());
+  for (size_t i = 0; i < word.size(); ++i) {
+    std::string p = word;
+    p[i] = '*';
+    patterns.push_back(std::move(p));
+  }
+  return patterns;
+}
+
+} // namespace
+
+SolverResult solve(const Config &config, const std::atomic<bool> &cancelToken) {
+  SolverResult result;
+
+  std::string start = Utils::trimToLower(config.startWord);
+  std::string end = Utils::trimToLower(config.endWord);
+
+  if (start.empty() || end.empty()) {
+    result.errorMessage = "Start word and end word cannot be empty.";
+    return result;
+  }
+
+  if (start.length() != end.length()) {
+    result.errorMessage = "Start word and end word must have the same length.";
+    return result;
+  }
+
+  const size_t wordLen = start.length();
+
+  // If start equals end
+  if (start == end) {
+    Solution s;
+    s.words = {start};
+    s.minScore = 1.0;
+    for (const auto &w : Utils::g_words) {
+      if (w.wordString == start) {
+        s.minScore = w.score;
+        break;
+      }
+    }
+    s.text = start;
+    result.solutions.push_back(s);
+    result.totalSolutionsFound = 1;
+    return result;
+  }
+
+  // Filter dictionary words of the exact same length
+  // Map word string to its index in candidate vector
+  struct CandidateWord {
+    std::string word;
+    double score;
+  };
+
+  std::vector<CandidateWord> candidates;
+  std::unordered_map<std::string, int> wordToIndex;
+
+  // Track if start and end words exist in dictionary
+  bool startFound = false;
+  bool endFound = false;
+  double startScore = 0.0;
+  double endScore = 0.0;
+
+  for (const auto &w : Utils::g_words) {
+    if (w.wordString.length() != wordLen) {
+      continue;
+    }
+
+    if (w.wordString == start) {
+      startFound = true;
+      startScore = w.score;
+    }
+    if (w.wordString == end) {
+      endFound = true;
+      endScore = w.score;
+    }
+
+    if (config.excludeUncommonWords && !w.is_scrabble) {
+      continue;
+    }
+
+    int idx = static_cast<int>(candidates.size());
+    wordToIndex[w.wordString] = idx;
+    candidates.push_back({w.wordString, w.score});
+  }
+
+  // Ensure start and end are in the candidate set even if they weren't in common scrabble words
+  if (wordToIndex.find(start) == wordToIndex.end()) {
+    int idx = static_cast<int>(candidates.size());
+    wordToIndex[start] = idx;
+    candidates.push_back({start, startScore});
+  }
+  if (wordToIndex.find(end) == wordToIndex.end()) {
+    int idx = static_cast<int>(candidates.size());
+    wordToIndex[end] = idx;
+    candidates.push_back({end, endScore});
+  }
+
+  const int startIdx = wordToIndex[start];
+  const int endIdx = wordToIndex[end];
+  const size_t numWords = candidates.size();
+
+  // Build pattern buckets
+  std::unordered_map<std::string, std::vector<int>> patternMap;
+  for (int i = 0; i < static_cast<int>(numWords); ++i) {
+    auto patterns = getPatterns(candidates[i].word);
+    for (auto &pat : patterns) {
+      patternMap[pat].push_back(i);
+    }
+  }
+
+  // Build adjacency list
+  std::vector<std::vector<int>> adj(numWords);
+  std::vector<bool> seen(numWords, false);
+
+  for (int i = 0; i < static_cast<int>(numWords); ++i) {
+    auto patterns = getPatterns(candidates[i].word);
+    seen[i] = true; // don't add self
+    for (const auto &pat : patterns) {
+      auto it = patternMap.find(pat);
+      if (it != patternMap.end()) {
+        for (int neighbor : it->second) {
+          if (!seen[neighbor]) {
+            seen[neighbor] = true;
+            adj[i].push_back(neighbor);
+          }
+        }
+      }
+    }
+    // reset seen for neighbors
+    seen[i] = false;
+    for (int n : adj[i]) {
+      seen[n] = false;
+    }
+  }
+
+  // Search for paths up to maxDepth words (i.e. length <= maxDepth)
+  // Each path starts with 1 word: start. Max depth means path.size() <= config.maxDepth.
+  const uint32_t maxDepth = std::max(uint32_t(2), config.maxDepth);
+
+  // First, compute shortest distances from start using BFS to prune paths that cannot reach end
+  // Also compute shortest distances from end
+  std::vector<int> distFromEnd(numWords, -1);
+  {
+    std::queue<int> q;
+    distFromEnd[endIdx] = 0;
+    q.push(endIdx);
+    while (!q.empty()) {
+      int u = q.front();
+      q.pop();
+      for (int v : adj[u]) {
+        if (distFromEnd[v] == -1) {
+          distFromEnd[v] = distFromEnd[u] + 1;
+          q.push(v);
+        }
+      }
+    }
+  }
+
+  // If end is unreachable at all
+  if (distFromEnd[startIdx] == -1 || static_cast<uint32_t>(distFromEnd[startIdx] + 1) > maxDepth) {
+    return result;
+  }
+
+  // Queue for BFS path search to find all solutions up to maxDepth
+  // A path is represented by indices
+  struct PathNode {
+    std::vector<int> path;
+    std::vector<bool> inPath;
+  };
+
+  std::queue<PathNode> q;
+  PathNode initial;
+  initial.path.push_back(startIdx);
+  initial.inPath.assign(numWords, false);
+  initial.inPath[startIdx] = true;
+  q.push(std::move(initial));
+
+  while (!q.empty()) {
+    if (cancelToken.load(std::memory_order_relaxed)) {
+      result.wasCancelled = true;
+      break;
+    }
+
+    PathNode curr = std::move(q.front());
+    q.pop();
+
+    int lastNode = curr.path.back();
+
+    // If we reached target
+    if (lastNode == endIdx) {
+      Solution sol;
+      sol.words.reserve(curr.path.size());
+      double minSc = 1.0;
+      std::string text;
+      for (size_t i = 0; i < curr.path.size(); ++i) {
+        int idx = curr.path[i];
+        sol.words.push_back(candidates[idx].word);
+        minSc = std::min(minSc, candidates[idx].score);
+        if (i > 0) text += " ";
+        text += candidates[idx].word;
+      }
+      sol.minScore = minSc;
+      sol.text = std::move(text);
+      result.solutions.push_back(std::move(sol));
+      result.totalSolutionsFound++;
+
+      if (config.maxSolutions > 0 && result.solutions.size() >= config.maxSolutions) {
+        break;
+      }
+      // Once we reach end, don't continue extending this path
+      continue;
+    }
+
+    // Check if extending exceeds max depth
+    if (curr.path.size() >= maxDepth) {
+      continue;
+    }
+
+    // Check if remaining depth is sufficient to reach endIdx
+    int remainingSteps = static_cast<int>(maxDepth - curr.path.size());
+    if (distFromEnd[lastNode] > remainingSteps) {
+      continue;
+    }
+
+    for (int next : adj[lastNode]) {
+      if (curr.inPath[next]) {
+        continue;
+      }
+      // Can `next` reach `end` in remaining - 1 steps?
+      if (distFromEnd[next] > remainingSteps - 1) {
+        continue;
+      }
+
+      PathNode nextNode;
+      nextNode.path = curr.path;
+      nextNode.path.push_back(next);
+      nextNode.inPath = curr.inPath;
+      nextNode.inPath[next] = true;
+      q.push(std::move(nextNode));
+    }
+  }
+
+  // Sort solutions according to spec:
+  // 1. Length ascending
+  // 2. minScore descending
+  // 3. words lexicographical
+  std::sort(result.solutions.begin(), result.solutions.end());
+
+  return result;
+}
+
+} // namespace Poople

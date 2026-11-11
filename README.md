@@ -8,7 +8,7 @@ A comprehensive C++ application that solves multiple popular word puzzles and ga
 
 ## Features
 
-* **Multiple Game Solvers**: Letter Boxed, Spelling Bee, Wordle, Mastermind, Hangman, and Dungleon
+* **Multiple Game Solvers**: Letter Boxed, Spelling Bee, Wordle, Mastermind, Hangman, Dungleon, and Poople (Word Ladder)
 * **Dual Interface**: Qt-based GUI and full-featured command-line interface
 * **Interactive & Automated Modes**: User-guided solving or scriptable batch processing
 * **Entropy-Based Suggestions**: Advanced algorithms for optimal move recommendations
@@ -126,6 +126,9 @@ If using the CLI, run the executable directly:
 
 # Hangman letter suggestions
 ./p++ hangman --input "_A__ ___;etz"
+
+# Poople word ladder solver
+./p++ poople --start COLD --end WARM --max-depth 10
 ```
 
 ## Running Tests

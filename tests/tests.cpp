@@ -13,6 +13,7 @@
 #include "hangman/hangman.hpp"
 #include "letterBoxed/letterBoxed.hpp"
 #include "mastermind/mastermind.hpp"
+#include "poople/poople.hpp"
 #include "spellingBee/spellingBee.hpp"
 #include "utils/inputUtils.hpp"
 #include "utils/utils.hpp"
@@ -2578,6 +2579,64 @@ TEST(UtilsTest, GetArgValueDefaults) {
   EXPECT_FALSE(Utils::Input::getArgValue(args, "auto-depth", false));
   EXPECT_EQ(Utils::Input::getArgValue(args, "output", std::string("default.txt")),
             "default.txt");
+}
+
+TEST(PoopleTest, SolverSameWord) {
+  Poople::Config config;
+  config.startWord = "poop";
+  config.endWord = "poop";
+  auto result = Poople::solve(config);
+  EXPECT_TRUE(result.errorMessage.empty());
+  ASSERT_EQ(result.solutions.size(), 1u);
+  EXPECT_EQ(result.solutions[0].words.size(), 1u);
+  EXPECT_EQ(result.solutions[0].words[0], "poop");
+}
+
+TEST(PoopleTest, SolverEmptyOrMismatchedLength) {
+  Poople::Config config;
+  config.startWord = "";
+  config.endWord = "poop";
+  auto result1 = Poople::solve(config);
+  EXPECT_FALSE(result1.errorMessage.empty());
+
+  config.startWord = "cat";
+  config.endWord = "poop";
+  auto result2 = Poople::solve(config);
+  EXPECT_FALSE(result2.errorMessage.empty());
+}
+
+TEST(PoopleTest, SolverFindsValidPathAndOrder) {
+  // Uses global words loaded by loadTestWords / default words if available
+  // Insert synthetic words if needed or test with known words
+  Poople::Config config;
+  config.startWord = "tares";
+  config.endWord = "tears";
+  config.maxDepth = 5;
+  config.excludeUncommonWords = false;
+
+  auto result = Poople::solve(config);
+  EXPECT_TRUE(result.errorMessage.empty());
+  // Verify that if solutions are returned, each step differs by 1 letter and is sorted by length then score
+  for (const auto &sol : result.solutions) {
+    ASSERT_GE(sol.words.size(), 2u);
+    EXPECT_EQ(sol.words.front(), "tares");
+    EXPECT_EQ(sol.words.back(), "tears");
+    for (size_t i = 0; i + 1 < sol.words.size(); ++i) {
+      int diff = 0;
+      for (size_t c = 0; c < sol.words[i].length(); ++c) {
+        if (sol.words[i][c] != sol.words[i + 1][c]) diff++;
+      }
+      EXPECT_EQ(diff, 1);
+    }
+  }
+
+  for (size_t i = 0; i + 1 < result.solutions.size(); ++i) {
+    if (result.solutions[i].words.size() == result.solutions[i + 1].words.size()) {
+      EXPECT_GE(result.solutions[i].minScore, result.solutions[i + 1].minScore);
+    } else {
+      EXPECT_LT(result.solutions[i].words.size(), result.solutions[i + 1].words.size());
+    }
+  }
 }
 
 TEST(EntSolverTest, EstimateENTMonotonicInN) {

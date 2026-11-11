@@ -146,6 +146,24 @@ For `<bool>` options: `1` / `y` / `yes` / `t` / `true` (any case) or `0` / `n` /
 * `--exclude-uncommon-words <bool>` — default `false`
 * `-o`, `--output <file>` — default `results/hangman.txt`
 
+### Poople (Word Ladder)
+
+```bash
+./p++ poople [OPTIONS]
+```
+
+* `-s`, `--start <word>` — starting word (required)
+* `-e`, `--end <word>` — target ending word (default: `"poop"` if start word length is 4)
+* `--preset <1|2|3|0>` — preset configuration:
+  * `1`: Default (all solutions up to depth 10, common words)
+  * `2`: Fast (first 100 solutions up to depth 10)
+  * `3`: Exhaustive (all words including uncommon up to depth 10)
+  * `0`: Custom
+* `--max-depth <n>` — maximum ladder depth in words (default `10`)
+* `--exclude-uncommon-words <bool>` — exclude uncommon words (default `true`)
+* `--max-solutions <n>` — limit total solutions saved (default `1000`)
+* `-o`, `--output <file>` — default `results/temp.txt`
+
 ### Dungleon
 
 ```bash
@@ -194,5 +212,7 @@ MinGW: `./build/mingw-debug/p++-benchmarks.exe`. Covered: Wordle, Spelling Bee, 
 ./p++ letterboxed --letters uvjswitgebac --preset 0 --max-depth 3 --min-word-length 4 --prune-paths true -o results/letterboxed.txt
 ./p++ mastermind --guesses "RGBC 1 2;MYRC 1 2" --pegs 4 --colors "RGBCMY" --max-depth 1 -o results/mastermind.txt
 ./p++ hangman --input "_A___ ___;etz" --max-depth 1 --exclude-uncommon-words true -o results/hangman.txt
+./p++ poople --start COLD --end WARM --max-depth 10 -o results/poople.txt
+./p++ poople --start FOOL --end POOP -o results/poople.txt
 ./p++ dungleon --guesses "ar kn bo ne fr 00010" --solutions "vi zo ne sk bt" --max-depth 0 -o results/dungleon.txt
 ```

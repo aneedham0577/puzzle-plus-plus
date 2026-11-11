@@ -20,6 +20,7 @@
 
 #include "dungleon/DungleonGame.hpp"
 #include "hangman/HangmanGame.hpp"
+#include "poople/PoopleGame.hpp"
 #include "wordle/WordleGame.hpp"
 
 #ifdef WITH_GUI
@@ -67,6 +68,7 @@ Modes:
   mastermind             Solve Mastermind puzzles with entropy-based suggestions
   dungleon               Solve Dungleon puzzles with entropy-based suggestions
   hangman                Solve Hangman puzzles with entropy-based letter suggestions
+  poople                 Solve Poople (word ladder) puzzles
   read                   Read and display results from a file
 
 Letter Boxed:
@@ -138,6 +140,20 @@ Hangman:
     -o, --output <file>        Output file with letter rankings and possible words
                                  (default: results/hangman.txt)
 
+Poople:
+  %s poople [OPTIONS]
+    -s, --start <word>         Starting word (required)
+    -e, --end <word>           Target ending word (default: "poop" if start length is 4)
+    --preset <1|2|3|0>         Preset configuration (default: 1)
+                                 1=Default (up to depth 10, common words)
+                                 2=Fast (first 100 solutions)
+                                 3=Exhaustive (includes uncommon words)
+                                 0=Custom
+    --max-depth <n>            Maximum ladder depth in words (default: 10)
+    --exclude-uncommon-words   Exclude uncommon words (default: 1)
+    --max-solutions <n>        Maximum solutions returned (default: 1000)
+    -o, --output <file>        Output file (default: results/temp.txt)
+
 Read Mode:
   %s read [FILE] [OPTIONS]
     FILE                       Input file to read (default: results/temp.txt)
@@ -155,6 +171,7 @@ Examples:
   %s mastermind --guesses "RGBC 1 2" --pegs 4 --colors "RGBCMY" --max-depth 1
   %s dungleon --guesses "ar kn bo ne fr 00010" --max-depth 1
   %s hangman --input "_A__ ___;xyz"
+  %s poople --start COLD --end WARM
   %s -i
   %s read results/wordle.txt --start 0 --end 10
 )";
@@ -162,7 +179,7 @@ Examples:
   printf(usage_message, programName, version_str, programName, programName,
          programName, programName, programName, programName, programName,
          programName, programName, programName, programName, programName,
-         programName, programName, programName);
+         programName, programName, programName, programName, programName);
 }
 
 void runReadMode(const std::map<std::string, std::string> &args,
@@ -223,6 +240,8 @@ std::unique_ptr<Game::IGame> createGame(const std::string &mode) {
     return std::make_unique<Game::DungleonGame>();
   else if (mode == "hangman")
     return std::make_unique<Game::HangmanGame>();
+  else if (mode == "poople")
+    return std::make_unique<Game::PoopleGame>();
   else
     return nullptr;
 }
@@ -236,7 +255,8 @@ void runInteractiveMode() {
     std::cout << "  4: Mastermind\n";
     std::cout << "  5: Dungleon\n";
     std::cout << "  6: Hangman\n";
-    std::cout << "  7: Read Results File\n";
+    std::cout << "  7: Poople\n";
+    std::cout << "  8: Read Results File\n";
     std::cout << "  q: Quit\n";
     std::cout << "Enter choice: ";
 
@@ -254,7 +274,7 @@ void runInteractiveMode() {
     if (input == "q")
       return;
 
-    if (input == "7") {
+    if (input == "8") {
       // Interactive read mode
       std::string filename = Utils::Input::promptString(
           "Enter filename to read", "results/temp.txt");
@@ -289,6 +309,8 @@ void runInteractiveMode() {
       game = createGame("dungleon");
     else if (input == "6")
       game = createGame("hangman");
+    else if (input == "7")
+      game = createGame("poople");
     else {
       std::cout << "Invalid choice. Please try again.\n";
       continue;
