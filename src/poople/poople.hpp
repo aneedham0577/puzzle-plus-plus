@@ -16,7 +16,6 @@ struct Config {
   uint32_t maxDepth = 10;
   bool excludeUncommonWords = true;
   uint32_t maxSolutions = 1000;
-  int preset = 1; // 0=Custom, 1=Default (depth 10, common words), 2=Fast (first 100), 3=Exhaustive (all words)
 };
 
 // Represents a valid word ladder solution path

@@ -47,7 +47,6 @@ Poople::Config PoopleGame::getConfigFromUser() {
             << "  0: Custom (Configure manually)\n";
 
   int preset = Utils::Input::promptInt("Enter preset number", 1, 0, 3);
-  config.preset = preset;
 
   if (preset == 1) {
     config.maxDepth = 10;
@@ -93,7 +92,6 @@ PoopleGame::getConfigFromArgs(const std::map<std::string, std::string> &args) {
   }
 
   int preset = Utils::Input::getArgValue(args, "preset", 1);
-  config.preset = preset;
 
   if (preset == 1) {
     config.maxDepth = 10;

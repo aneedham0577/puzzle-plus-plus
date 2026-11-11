@@ -52,7 +52,6 @@ void PoopleWidget::initGame() {
   config.maxDepth = 10;
   config.excludeUncommonWords = true;
   config.maxSolutions = 1000;
-  config.preset = 1;
 
   ui->startLineEdit->clear();
   ui->endLineEdit->setText("POOP");
